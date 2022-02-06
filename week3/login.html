@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <section >
+            <div class="box">
+                <div class="container">
+                    <div class="form">
+                        <h2>Login</h2>
+                        <form action="" @submit.prevent="login">
+                            <div class="inputBox">
+                                <input type="text"
+                                       placeholder="Email address"
+                                       v-model="user.username"
+                                       id="username" required> 
+                            </div>
+                            <div class="inputBox">
+                                <input type="password"
+                                       placeholder="Password"
+                                       v-model="user.password"
+                                       id="password" required>
+                            </div>
+                            <div class="inputBox">
+                                <input type="submit"
+                                       value="Login">
+                            </div>
+                            <p class="forget">
+                                Forgot password ?
+                                <a href="#">Click Here</a>
+                            </p>
+                            <p class="forget">
+                                Don't have an account ?
+                                <a href="#">Sign up</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js'
+      integrity='sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=='
+      crossorigin='anonymous'></script>
+      
+    <script src="./js/login.js" type="module"></script>      
+</body>
+</html>
