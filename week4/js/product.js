@@ -3,7 +3,7 @@ import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.
 let productModal = null;
 let delProductModal = null;
 
-createApp({
+const app = createApp({
   data() {
     return{
       apiUrl: 'https://vue3-course-api.hexschool.io/v2',
@@ -13,13 +13,10 @@ createApp({
       tempProduct: {
         imagesUrl: [],
       },
+      pagination:{},
     }
   },
   mounted() {
-    productModal = new bootstrap.Modal(document.getElementById('productModal'));
-
-    delProductModal = new bootstrap.Modal(document.getElementById('delProductModal'));
-
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
     axios.defaults.headers.common.Authorization = token;
     this.checkAdmin();
@@ -36,11 +33,13 @@ createApp({
           window.location = 'login.html';
         })
     },
-    getData() {
-      const url = `${this.apiUrl}/api/${this.apiPath}/admin/products/all`;
+    getData(page = 1) {
+      const url = `${this.apiUrl}/api/${this.apiPath}/admin/products?page=${page}`;
       axios.get(url)
         .then((res) => {
-          this.products = res.data.products;
+          const { products,pagination } = res.data;
+          this.products = products;
+          this.pagination = pagination;
         })
         .catch((err) => {
           alert(err.data.message);
@@ -64,37 +63,81 @@ createApp({
         delProductModal.show()
       }
     },
+  }
+})
+
+// 分頁元件
+app.component('pagination',{
+  template:'#pagination',
+  props:['pages'],
+  methods:{
+    emitPage(page){
+      this.$emit('emit-page',page)
+    }
+  }
+})
+
+// 新增/編輯元件
+app.component('productModal',{
+  template:'#productModal',
+  props:['product','isNew'],
+  data(){
+    return {
+      apiUrl: 'https://vue3-course-api.hexschool.io/v2',
+      apiPath: 'shila-hexschool',
+      modal: null,
+    }
+  },
+  methods:{
     updateProduct(){
       let url = `${this.apiUrl}/api/${this.apiPath}/admin/product`;
       let method = "post";
-
       if ( !this.isNew ){
-        url = `${this.apiUrl}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`;
+        url = `${this.apiUrl}/api/${this.apiPath}/admin/product/${this.product.id}`;
         method = 'put'
       }
-
-      axios[method](url, { data: this.tempProduct })
+      axios[method](url, { data: this.product })
         .then( (res) => {
-          alert(res.data.message);
           productModal.hide();
-          this.getData();
+          this.$emit('update')
         })
         .catch( (err) => {
           alert(err.data.message);
         })
-      
     },
+  },
+  mounted() {
+    productModal = new bootstrap.Modal(document.getElementById('productModal'));
+  },
+})
+
+// 刪除元件
+app.component('delProductModal',{
+  data(){
+    return {
+      apiUrl: 'https://vue3-course-api.hexschool.io/v2',
+      apiPath: 'shila-hexschool',
+      modal: null,
+    }
+  },
+  template:'#delProductModal',
+  props:['product'],
+  methods:{
     delProduct(){
-      const url = `${this.apiUrl}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`;
+      const url = `${this.apiUrl}/api/${this.apiPath}/admin/product/${this.product.id}`;
       axios.delete(url)
         .then( (res) => {
-          alert(res.data.message);
           delProductModal.hide();
-          this.getData();
+          this.$emit('update');
         } )  
         .catch( (err) => {
           alert(err.data.message);
         } )    
     }
-  }
-}).mount('#app');
+  },
+  mounted() {
+    delProductModal = new bootstrap.Modal(document.getElementById('delProductModal'));
+  },
+})
+
+app.mount('#app');
